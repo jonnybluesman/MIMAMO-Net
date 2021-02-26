@@ -1,7 +1,10 @@
-import torch
 import math
-from torch.nn import functional as F
 import numpy as np
+
+import torch
+from torch.nn import functional as F
+
+
 def torch_unwrap(tensor, discont=math.pi, dim=-1):
     nd = len(tensor.size())
     dd = torch_diff(tensor, dim=dim)
@@ -18,6 +21,8 @@ def torch_unwrap(tensor, discont=math.pi, dim=-1):
     up = tensor.clone().detach()
     up[slice1] = tensor[slice1] + ph_correct.cumsum(dim=dim)
     return up
+
+
 def torch_diff(tensor,n=1, dim=-1):
     """
     tensor : Input Tensor
@@ -38,6 +43,8 @@ def torch_diff(tensor,n=1, dim=-1):
     for _ in range(n):
         tensor = tensor[slice1] - tensor[slice2]
     return tensor
+
+
 def extract_from_batch(coeff_batch, example_idx=0, symmetry = True):
     '''
     Given the batched Complex Steerable Pyramid, extract the coefficients
@@ -75,6 +82,8 @@ def extract_from_batch(coeff_batch, example_idx=0, symmetry = True):
         else:
             raise ValueError('coeff leve must be of type (list, torch.Tensor)')
     return coeff
+
+
 def amplitude_based_gaussian_blur(mag, phase, g_kernel):
     bs, n_frames, W, H = phase.size()
     mag_phase = torch.mul(mag, phase)
@@ -88,6 +97,8 @@ def amplitude_based_gaussian_blur(mag, phase, g_kernel):
     mag_blurred = F.conv2d(mag, filters, groups = in_channel, padding=m//2)
     result = torch.div(mag_phase_blurred, mag_blurred)
     return result
+
+
 def amplitude_based_gaussian_blurcoeff_batch_numpy(mag, phase, g_kernel):
     bs, n_frames, W, H = phase.size()
     phase = phase.cpu().numpy()
@@ -104,7 +115,9 @@ def amplitude_based_gaussian_blurcoeff_batch_numpy(mag, phase, g_kernel):
             new_phase_b.append(denoised_phase)
         new_phase.append(new_phase_b)
     new_phase = np.asarray(new_phase)
-    return torch.Tensor(new_phase).type('torch.FloatTensor').cuda(async=True)
+    return torch.Tensor(new_phase).type('torch.FloatTensor').cuda(non_blocking=True)
+
+
 def gaussian_kernel(std, tap = 11):
     kernel = np.zeros((tap, tap))
     for x in range(tap):
@@ -113,6 +126,8 @@ def gaussian_kernel(std, tap = 11):
             y0 = y - tap//2
             kernel[x, y] = np.exp(- (x0**2+y0**2)/(2*std**2))
     return kernel
+
+
 def symmetric_extension_batch(img_batch):
     #  img_batch, None, W, H (the last two aixes are two dimensional image)
     img_batch_inverse_col = img_batch.clone().detach()
