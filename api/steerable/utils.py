@@ -49,6 +49,7 @@ def get_device(device='cuda:0'):
             'Please recompile your PyTorch distribution.')
     return torch.device('cpu')
 
+
 def load_image_batch(image_file, batch_size, image_size=200):
     if not os.path.isfile(image_file):
         raise FileNotFoundError('Image file not found on disk: {}'.format(image_file))
@@ -60,6 +61,7 @@ def load_image_batch(image_file, batch_size, image_size=200):
     # insert channels dim and rescale
     return im_batch[:,None,:,:]/225.
 
+
 def show_image_batch(im_batch):
     assert isinstance(im_batch, torch.Tensor)
     im_batch = torchvision.utils.make_grid(im_batch).numpy()
@@ -69,6 +71,7 @@ def show_image_batch(im_batch):
     plt.tight_layout()
     plt.show()
     return im_batch
+
 
 def extract_from_batch(coeff_batch, example_idx=0):
     '''

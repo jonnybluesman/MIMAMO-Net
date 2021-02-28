@@ -1,15 +1,20 @@
-from steerable.SCFpyr_PyTorch import SCFpyr_PyTorch
-from steerable.utils import get_device, make_grid_coeff
-from utils.phase_utils import *
+
 from PIL import Image
 import numpy as np
+
+from steerable.SCFpyr_PyTorch import SCFpyr_PyTorch
+from steerable.utils import make_grid_coeff
+from utils.phase_utils import *
+
+
 class Phase_Difference_Extractor(object):
+
     def __init__(self, height=5, nbands=4, scale_factor=2, 
-        extract_level=1, visualize=False):
-        '''Phase_Difference_Extractor: A class to do steerable pyramid computation, extract the phase and phase difference
-        Usage: 
-              build_pyramid(): build complex steerable pyramid coefficients
-              extract(): extract phase differences
+        extract_level=1, device='cuda:0', visualize=False):
+        """
+        Phase_Difference_Extractor: A class to do steerable pyramid computation,
+        extract the phase and phase difference.
+        
         Parameters:
             height: int, default 5
                 The coefficients levels including low-pass and high-pass
@@ -18,23 +23,27 @@ class Phase_Difference_Extractor(object):
             scale_factor: int, default 2
                 Spatial resolution reduction scale scale_factor
             extract_level: int, or list of int numbers, default 1
-                If extract_level is an int number, build_pyramid() will only return the coefficients in one level;
-                If extract_level is a list, build_pyramid() will only return the coefficients of multiple levels.
+                If extract_level is an int number, build_pyramid() will only 
+                return the coefficients in one level;
+                If extract_level is a list, build_pyramid() will only return 
+                the coefficients of multiple levels.
             visualize: bool, default False
                If true, the build_pyramid() and extract() will show the processed results.
-        '''
+        """
     
         self.pyramid = SCFpyr_PyTorch(
             height=height, 
             nbands=nbands,
             scale_factor=scale_factor, 
-            device=get_device()
+            device=device
         )
         self.height = height
         self.nbands = nbands
         self.scale_factor = scale_factor
         self.extract_level = extract_level
         self.visualize = visualize
+
+
     def build_pyramid(self, im_batch, symmetry = True):
         """
         input image batch has 4 dimensions: batch size, number of phase images, W, H
@@ -85,11 +94,15 @@ class Phase_Difference_Extractor(object):
                     level_coeff_batch = level_coeff_batch[..., :W//2, :H//2, :]
                 extr_level_coeff_batch.append(level_coeff_batch)
         return extr_level_coeff_batch
+
+
     def extract_coeff_level(self, level, coeff_batch):
         extr_level_coeff_batch = coeff_batch[level]
         assert isinstance(extr_level_coeff_batch, list)
         extr_level_coeff_batch = torch.stack(extr_level_coeff_batch, 0)
         return extr_level_coeff_batch
+
+
     def extract(self, coeff_batch):
         """
         coeff batch has dimension: batch size, nbands, number phase frames (17), W, H, 2   (2 is for real part and imaginary part) 
@@ -132,6 +145,7 @@ class Phase_Difference_Extractor(object):
         phase_difference_batch = phase_difference_batch - mean
         phase_difference_batch = torch.clamp(phase_difference_batch, -5*math.pi, 5*math.pi)
         return phase_difference_batch
+
 
     def show_3D_subplots(self, data, title, first_k_frames = None):
         """

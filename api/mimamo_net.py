@@ -1,9 +1,14 @@
+
+import os
+import glob
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import glob
-import os
+
+
 class MLP(nn.Module):
+
     def __init__(self, hidden_units, dropout=0.3):
         super(MLP, self).__init__()
         input_feature_dim = hidden_units[0]
@@ -19,12 +24,16 @@ class MLP(nn.Module):
                         ]
             input_feature_dim = hidden_dim
         self.mlp = nn.Sequential(*fc_list)
+
     def forward(self, input_tensor):
         bs, num_frames, feature_dim = input_tensor.size()
         input_tensor = input_tensor.view(bs*num_frames, feature_dim)
         out = self.mlp(input_tensor)
         return out.view(bs, num_frames, -1)
+
+
 class PhaseNet(nn.Module):
+
     def __init__(self, input_size, num_channels, hidden_units=[256, 256, 1] , dropout=0.3, feature=False):
         super(PhaseNet,self).__init__()
         # input size : 2**i times 6 or 7
@@ -65,6 +74,7 @@ class PhaseNet(nn.Module):
         self.classifier = nn.Sequential(nn.Linear(hidden_units[-2], hidden_units[-1]),
                                  final_norm )
         self.feature = feature
+
     def _make_conv_layer(self, in_c, out_c, kernel_size = 3, stride = 2):
         ks = kernel_size 
         conv_layer = nn.Sequential(
@@ -76,6 +86,7 @@ class PhaseNet(nn.Module):
         nn.ReLU(inplace=True),
         )
         return conv_layer
+
     def forward(self, data_level0, data_level1):
         bs, num_frames,  num_channel, W0, H0 = data_level0.size()
         bs, num_frames, num_channel,  W1, H1 = data_level1.size()
@@ -93,7 +104,10 @@ class PhaseNet(nn.Module):
         else:
             out = self.classifier(out)
             return out
+
+
 class Two_Stream_RNN(nn.Module):
+
     def __init__(self, mlp_hidden_units=[2048, 256, 256], dropout=0.5, label_name = 'arousal_valence', 
         num_phase=12):
         super(Two_Stream_RNN, self).__init__()
@@ -120,12 +134,14 @@ class Two_Stream_RNN(nn.Module):
         self.classifier = nn.Sequential(nn.Dropout(dropout),
                                         nn.Linear(256, len(label_name.split("_"))),
                                         nn.BatchNorm1d(len(label_name.split("_"))))
+    
     def load_model_weights(self, model, model_path):
         ckp = torch.load(model_path)
         net_key = [key for key in ckp.keys() if (key !='epoch') and (key !='iter')][0]
         state_dict = ckp[net_key]
         model.load_state_dict(state_dict)
         return model
+    
     def forward(self, phase_data, rgb_data):
         bs, num_frames = rgb_data.size(0), rgb_data.size(1)
         features_cnn = self.mlp(rgb_data)
@@ -141,30 +157,3 @@ class Two_Stream_RNN(nn.Module):
         out = self.classifier(outputs_rnns)
         out = out.view(bs, num_frames, -1)
         return out
-    
-# if __name__ == "__main__":
-
-#     from dataloader import Face_Dataset
-#     import os
-#     root_path = '/media/newssd/Aff-Wild_experiments/Aligned_Faces_train'
-#     feature_path = '/media/newssd/Aff-Wild_experiments/Extracted_Features/Aff_wild_train/resnet50_ferplus_features_fps=30_pool5_7x7_s1'
-#     annot_dir = '/media/newssd/Aff-Wild_experiments/annotations'
-#     video_names = os.listdir(root_path)[:50]
-#     train_dataset = Face_Dataset(root_path, feature_path, annot_dir, video_names, label_name='arousal', test_mode=False, num_phase=12, length=64, stride=32)
-#     train_loader = torch.utils.data.DataLoader(
-#         train_dataset, 
-#         batch_size = 2, 
-#         num_workers=0, pin_memory=False )
-#     model = Two_Stream_RNN(mlp_hidden_units=[2048, 256, 256])
-#     model.cuda()
-#     model.train()
-#     for phase_f, rgb_f, labels, ranges, videos in train_loader:
-#         phase_0, phase_1 = phase_f
-#         phase_0 = phase_0.type('torch.FloatTensor').cuda()
-#         phase_1 = phase_1.type('torch.FloatTensor').cuda()
-#         rgb_f = rgb_f.type('torch.FloatTensor').cuda()
-#         labels = labels.type('torch.FloatTensor').cuda()
-#         out = model([phase_0,phase_1], rgb_f)
-        
-        
-
