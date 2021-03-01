@@ -15,8 +15,8 @@ from utils.model_utils import load_model, compose_transforms
 
 class Resnet50Extractor(object):
 
-    def __init__(self, benchmark_dir = 'pytorch-benchmarks', device='cuda:0',
-        model_name= 'resnet50_ferplus_dag', feature_layer = 'pool5_7x7_s1'):
+    def __init__(self, benchmark_dir='pytorch-benchmarks', device='cuda:0',
+        model_name='resnet50_ferplus_dag', feature_layer='pool5_7x7_s1'):
         """
         Resnet50_Extractor: A feature extractor to extractor the final conv 
         layer's feature vector (2048 dimensional) and save those feature vectors
