@@ -1,7 +1,7 @@
 # MIMAMO-Net API
 MIMAMO Net: Integrating Micro- and Macro-motion for Video Emotion Recognition
 
-This repository contain all the scripts needed for running MIMAMO-Net on videos.
+This repository contains all the scripts needed for running MIMAMO-Net on videos.
 MIMAMO-Net is a model designed for temporal emotion recognition in the valence 
 and arousal space. Valence roughly describes how positive or negative a person
 is, whereas arousal describes how active or calm the person is. This simple API
@@ -10,28 +10,32 @@ an input video where at least a human face can be detected.
 
 ![alt text](model.png "Architecture of the model.")
 
-This repository is a fork of Didan Deng's original project, which can be found [here](https://github.com/wtomin/MIMAMO-Net) and is based on the following paper.
+This work is a fork of Didan Deng's original project, which can be found [here](https://github.com/wtomin/MIMAMO-Net) and is based on the following paper.
 
 >Deng, Didan, et al. "MIMAMO Net: Integrating Micro-and Macro-motion for Video Emotion Recognition." Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 34. No. 03. 2020.
 
 ***
 
 ## Setup
-First of all, you need to install and configure [OpenFace](https://github.com/TadasBaltrusaitis/OpenFace), which may be painful, although there is plenty of documentation (see
-the official repository of the project, or check the `docs/` folder).
+First of all, you need to install and configure [OpenFace](https://github.com/TadasBaltrusaitis/OpenFace), which may be painful if you want to compile everything, although
+there is plenty of documentation online (see the official repository of the project, or check the `docs/` folder). Also, a docker image is available from [the docker hub](https://hub.docker.com/r/algebr/openface/), with everything ready to use, although you will not be
+able to run everything within that container, as it is based on Ubuntu 14 (
+the required version of pytorch and cuda for MIMAMO-Net will not like it).
 
-Next assuming that you have a conda system, you can run the `setup.sh` script:
+Next, assuming that you have a conda system, you can run the `setup.sh` script:
 ```
 bash setup.sh
 ```
 This will create a conda environment based on the `.yml` specifications,
-download and setup the missing repositories and download the checkpoints of the 
-models.
+download and setup the missing repositories, and download the checkpoints of the 
+models (also for transfer learning). If you encouter any errors during this step,
+we recommend going through the bash file and run everything line by line.
 
 ## Usage
-There are 2 ways to use MIMAMO-Net for inference: via python (with more
-granular control over the parameters and the execution modes); via the simple
-`run.sh` bash script (which only requires 2 parameters, and runs as a daemon).
+There are 2 ways to use MIMAMO-Net for inference: via python (more
+granular control over the possible parameters and the execution modes); via the
+simple `run.sh` bash script (which only requires 2 parameters, and can be
+customised in order to be used for production).
 
 The former option is provided in `api/main.py`, with the following arguments.
 
@@ -133,13 +137,13 @@ optional arguments:
 ```
 
 Alternatively, you can directly use the bash script `run.sh` where some arguments
-related to the configuration of your dependencies is already provided. Feel free
-to edit this file as a configuration file, where only the required dependecies
+related to the configuration of your dependencies are already provided. Feel free
+to edit this script as your configuration file, where only the required dependecies
 (e.g. OpenFace path, model checkpoint path, etc.), as well as the optional
-parameters of the FER algorithm are hard-coded, hence fixed for future executions.
+parameters of the FER algorithm would be hard-coded, hence fixed for future executions.
 In this way, only 2 parameters are required: the file system path of the video
-to process (or a directory containing videos), and the output directory where
-the output will be stored. For example:
+to process (or a directory containing videos); the output directory where the
+output files will be written. This is useful for production-deployment. For example:
 
 ```
 bash run.sh examples/ processed-videos/
