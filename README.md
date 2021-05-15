@@ -1,6 +1,13 @@
 # MIMAMO-Net API
 MIMAMO Net: Integrating Micro- and Macro-motion for Video Emotion Recognition
 
+This repository contain all the scripts needed for running MIMAMO-Net on videos.
+MIMAMO-Net is a model designed for temporal emotion recognition in the valence 
+and arousal space. Valence roughly describes how positive or negative a person
+is, whereas arousal describes how active or calm the person is. This simple API
+allows you to get valence and arousal predictions at a frame level, from
+an input video where at least a human face can be detected.
+
 ![alt text](model.png "Architecture of the model.")
 
 This repository is a fork of Didan Deng's original project, which can be found [here](https://github.com/wtomin/MIMAMO-Net) and is based on the following paper.
