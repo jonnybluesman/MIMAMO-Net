@@ -1,0 +1,22 @@
+name: facial
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - pandas
+  - matplotlib
+  - numpy
+  - scipy
+  - click
+  - pillow
+  - menpo
+  - jupyterlab
+  - scikit-learn
+  - scikit-image
+  - pytorch
+  - torchvision
+  - cudatoolkit=10.0
+  - seaborn
+  - plotly
+prefix: /home/jakodb/anaconda3/envs/facial
+
